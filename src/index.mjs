@@ -57,6 +57,26 @@ app.put('/api/users/:id', (request, response) => {
      response.status(200).send(mockUsers[getIndexToUpdate]);
 })
 
+app.patch('/api/users/:id', (request, response) => {
+     const { params: {id}, body } = request;
+     const parseId = parseInt(id)
+     if(isNaN(parseId)) return response.status(400).send({msg: 'Bad request. Invalid ID.'});
+     const getIndexToUpdate = mockUsers.findIndex(user => user.id === parseId);
+     if(getIndexToUpdate === -1) return response.sendStatus(404);
+     mockUsers[getIndexToUpdate] = {...mockUsers[getIndexToUpdate], ...body}
+     response.status(200).send(mockUsers[getIndexToUpdate])
+})
+
+app.delete('/api/users/:id', (request, response) => {
+     const {params: {id}} = request
+     const parseId = parseInt(id)
+     if(isNaN(parseId)) return response.status(400).send({msg: "Bad request, Invalid ID."})
+     const getIdtoUpdate = mockUsers.findIndex(user => user.id === parseId)
+     if(getIdtoUpdate === -1) return response.sendStatus(404)
+     mockUsers.splice(getIdtoUpdate, 1)
+     return response.sendStatus(200)
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
