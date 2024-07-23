@@ -1,4 +1,6 @@
-import express, { query, response } from 'express';
+import express from 'express';
+import {query, validationResult, body, matchedData, checkSchema} from 'express-validator'
+import {createUserValidationSchema} from '../utils/validationSchema.mjs'
 const app = express();
 app.use(express.json())
 //order matters in middleware case
@@ -30,11 +32,19 @@ const mockUsers = [
 ]
 
 app.get('/', loginMiddleware, (request, response) => {
-     response.status(201).send({message: 'hello jsosn'})
+     response.status(201).send({message: 'hello json'})
 })
 
-app.get('/api/users', (request, response) => {
-     // console.log(request.query)
+app.get('/api/users',
+     query('filter')
+     .isString()
+     .notEmpty()
+     .withMessage('Must not be empty')
+     .isLength({min: 3, max: 10})
+     .withMessage('Length must be between 3 and 10.')
+     ,(request, response) => {
+     const result = validationResult(request)
+     console.log(result)
      const {query: {filter, value}} = request
      if(filter && value){
           response.send(mockUsers.filter(user => user[filter].includes(value)))
@@ -42,10 +52,14 @@ app.get('/api/users', (request, response) => {
      response.status(200).send(mockUsers)
 })
 
-app.post('/api/users', (request, response) => {
-     // console.log(request.body)
-     const {body} = request
-     const newUser = {id: mockUsers[mockUsers.length - 1].id + 1, ...body}
+app.post('/api/users', checkSchema(createUserValidationSchema),
+     (request, response) => {
+     const result = validationResult(request)
+     if(!result.isEmpty()) return response.status(400).send({err: result.array()})
+     const confirmData = matchedData(request)
+     console.log(confirmData)
+     // const {body} = request
+     const newUser = {id: mockUsers[mockUsers.length - 1].id + 1, ...confirmData}
      mockUsers.push(newUser)
      response.status(201).send(newUser)
 })
