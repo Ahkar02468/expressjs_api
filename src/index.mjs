@@ -1,6 +1,7 @@
 import express from 'express';
 import {query, validationResult, body, matchedData, checkSchema} from 'express-validator'
 import {createUserValidationSchema} from './utils/validationSchema.mjs'
+import { validateGetMethod } from './utils/validateForGetFilter.mjs';
 const app = express();
 app.use(express.json())
 //order matters in middleware case
@@ -35,25 +36,20 @@ app.get('/', loginMiddleware, (request, response) => {
      response.status(201).send({message: 'hello json'})
 })
 
-app.get('/api/users',
-     query('filter')
-     .isString()
-     .notEmpty()
-     .withMessage('Must not be empty')
-     .isLength({min: 3, max: 10})
-     .withMessage('Length must be between 3 and 10.')
-     ,(request, response) => {
+app.get('/api/users',checkSchema(validateGetMethod), (request, response) => {
      const result = validationResult(request)
-     console.log(result)
+     if(!result.isEmpty()) return response.status(400).send({err: result.array()})
+     const confirmData = matchedData(request)
+     console.log(confirmData)
      const {query: {filter, value}} = request
      if(filter && value){
-          response.send(mockUsers.filter(user => user[filter].includes(value)))
+          response.status(200).send(mockUsers.filter(user => user[filter].includes(value)))
+     }else{
+          response.status(200).send(mockUsers)
      }
-     response.status(200).send(mockUsers)
 })
 
-app.post('/api/users', checkSchema(createUserValidationSchema),
-     (request, response) => {
+app.post('/api/users', checkSchema(createUserValidationSchema), (request, response) => {
      const result = validationResult(request)
      if(!result.isEmpty()) return response.status(400).send({err: result.array()})
      const confirmData = matchedData(request)
