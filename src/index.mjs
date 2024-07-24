@@ -1,6 +1,6 @@
 import express from 'express';
 import {query, validationResult, body, matchedData, checkSchema} from 'express-validator'
-import {createUserValidationSchema} from '../utils/validationSchema.mjs'
+import {createUserValidationSchema} from './utils/validationSchema.mjs'
 const app = express();
 app.use(express.json())
 //order matters in middleware case
