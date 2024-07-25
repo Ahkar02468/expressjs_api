@@ -4,10 +4,20 @@ import { validateGetMethod } from '../utils/validateForGetFilter.mjs';
 import { createUserValidationSchema } from '../utils/validationSchema.mjs'
 import { userResolveToGetId } from '../utils/middlewares.mjs';
 import { mockUsers } from '../utils/mockData.mjs';
+import session from 'express-session';
 
 const router = Router()
-
-router.get('/api/users',checkSchema(validateGetMethod), (request, response) => {
+//,checkSchema(validateGetMethod)
+router.get('/api/users', (request, response) => {
+     // console.log(request.session)
+     console.log(request.session.id)
+     request.sessionStore.get(request.session.id, (err, sessionData) => {
+          if(err){
+               console.log(err)
+               throw err
+          }
+          console.log("Session Data: ",sessionData)
+     })
      const result = validationResult(request)
      if(!result.isEmpty()) return response.status(400).send({err: result.array()})
      // const confirmData = matchedData(request)

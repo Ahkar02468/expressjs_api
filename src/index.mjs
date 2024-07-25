@@ -6,7 +6,12 @@ import session from 'express-session';
 const app = express();
 app.use(express.json())
 app.use(cookieParser("helloworld"))
-app.use(session())
+app.use(session({
+    secret: "ak the dev",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 60000 * 60 }
+}))
 app.use(allRoutes)
 
 //order matters in middleware case
@@ -19,6 +24,9 @@ const PORT = process.env.PORT || 3000;
 
 // app.use(loginMiddleware)
 app.get('/', loginMiddleware, (request, response) => {
+     console.log(request.session)
+     console.log(request.session.id)
+     request.session.visted = true
      response.cookie("hello", "world", {maxAge: 600000, signed: true})
      response.status(201).send({message: 'hello json'})
 })
