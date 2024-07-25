@@ -1,8 +1,10 @@
 import express from 'express';
 import allRoutes from './routes/allRoutes.mjs'
+import cookieParser from 'cookie-parser';
 
 const app = express();
 app.use(express.json())
+app.use(cookieParser("helloworld"))
 app.use(allRoutes)
 
 //order matters in middleware case
@@ -15,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // app.use(loginMiddleware)
 app.get('/', loginMiddleware, (request, response) => {
+     response.cookie("hello", "world", {maxAge: 600000, signed: true})
      response.status(201).send({message: 'hello json'})
 })
 
