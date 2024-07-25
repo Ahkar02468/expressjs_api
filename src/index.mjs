@@ -1,10 +1,12 @@
 import express from 'express';
 import allRoutes from './routes/allRoutes.mjs'
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 
 const app = express();
 app.use(express.json())
 app.use(cookieParser("helloworld"))
+app.use(session())
 app.use(allRoutes)
 
 //order matters in middleware case
