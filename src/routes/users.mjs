@@ -4,6 +4,7 @@ import { validateGetMethod } from '../utils/validateForGetFilter.mjs';
 import { createUserValidationSchema } from '../utils/validationSchema.mjs'
 import { userResolveToGetId } from '../utils/middlewares.mjs';
 import { mockUsers } from '../utils/mockData.mjs';
+import { User } from '../mongoose/schemas/user.mjs';
 import session from 'express-session';
 
 const router = Router()
@@ -37,16 +38,31 @@ router.get('/api/users/:id',userResolveToGetId, (request, response) => {
      return response.send(user)
 })
 
-router.post('/api/users', checkSchema(createUserValidationSchema), (request, response) => {
+router.post('/api/users', checkSchema(createUserValidationSchema),async (request, response) => {
      const result = validationResult(request)
-     if(!result.isEmpty()) return response.status(400).send({err: result.array()})
-     const confirmData = matchedData(request)
-     // console.log(confirmData)
-     // const {body} = request
-     const newUser = {id: mockUsers[mockUsers.length - 1].id + 1, ...confirmData}
-     mockUsers.push(newUser)
-     response.status(201).send(newUser)
+     if(!result.isEmpty()) return response.status(400).send(result.array())
+     const data = matchedData(request)
+     console.log(data)
+     const newUser = new User(data)
+     try {
+          const savedUser = await newUser.save()
+          return response.status(201).send(savedUser)
+     } catch (error) {
+          console.log(error)
+          return response.sendStatus(400)
+     }
 })
+
+// router.post('/api/users', checkSchema(createUserValidationSchema), (request, response) => {
+//      const result = validationResult(request)
+//      if(!result.isEmpty()) return response.status(400).send({err: result.array()})
+//      const confirmData = matchedData(request)
+//      // console.log(confirmData)
+//      // const {body} = request
+//      const newUser = {id: mockUsers[mockUsers.length - 1].id + 1, ...confirmData}
+//      mockUsers.push(newUser)
+//      response.status(201).send(newUser)
+// })
 
 router.put('/api/users/:id',userResolveToGetId, (request, response) => {
      const { body, getIndexToUpdate } = request
