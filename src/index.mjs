@@ -6,14 +6,7 @@ import {mockUsers} from './utils/mockData.mjs';
 import passport from 'passport';
 import './strategies/local-strategy.mjs'
 import mongoose from 'mongoose'
-// import { MongoClient } from 'mongodb';
-
-// const uri = 'mongodb://127.0.0.1:27017/express_server';
-// const client = new MongoClient(uri);
-
-// client.connect()
-//   .then(() => console.log('Connected to database..'))
-//   .catch(err => console.log(`Error ${err}`));
+import MongoStore from 'connect-mongo'
 
 mongoose
      .connect('mongodb+srv://ahkarshwebaw:WgYPeu8mbPx7B4G0@express-server.pia2bmv.mongodb.net/express_server?retryWrites=true&w=majority&appName=express-server')
@@ -27,7 +20,10 @@ app.use(session({
     secret: "ak the dev",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 60000 * 60 }
+    cookie: { maxAge: 60000 * 60 },
+    store: MongoStore.create({
+     client: mongoose.connection.getClient()
+    })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
