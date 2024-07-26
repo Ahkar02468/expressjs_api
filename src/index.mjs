@@ -56,7 +56,7 @@ app.post('/api/auth', passport.authenticate("local"), (request, response) => {
 
 app.get('/api/auth/status',async (request, response) => {
      console.log(request.session)
-     return request.user ? response.status(200).send(request.session.passport) : response.sendStatus(401)
+     return request.user ? response.status(200).send(request.session) : response.sendStatus(401)
 })
 
 // app.post('/api/cart', (request, response) => {

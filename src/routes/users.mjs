@@ -6,6 +6,7 @@ import { userResolveToGetId } from '../utils/middlewares.mjs';
 import { mockUsers } from '../utils/mockData.mjs';
 import { User } from '../mongoose/schemas/user.mjs';
 import session from 'express-session';
+import { hashPassword } from '../utils/helper.mjs';
 
 const router = Router()
 //,checkSchema(validateGetMethod)
@@ -42,6 +43,8 @@ router.post('/api/users', checkSchema(createUserValidationSchema),async (request
      const result = validationResult(request)
      if(!result.isEmpty()) return response.status(400).send(result.array())
      const data = matchedData(request)
+     console.log(data)
+     data.password = hashPassword(data.password)
      console.log(data)
      const newUser = new User(data)
      try {
