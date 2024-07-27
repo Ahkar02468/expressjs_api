@@ -9,10 +9,10 @@ passport.serializeUser((id, done) => {
      done(null, id)
 })
 
-passport.deserializeUser((id, done) => {
+passport.deserializeUser(async (id, done) => {
      console.log((`Deserialize ID: ${id}`))
      try {
-          const findUser = User.findById(id)
+          const findUser = await User.findById(id)
           console.log(findUser)
           if(!findUser) throw new Error('User ID is not exist.')
           done(null, findUser)
